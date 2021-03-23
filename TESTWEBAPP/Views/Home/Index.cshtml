@@ -1,0 +1,311 @@
+﻿@model TESTWEBAPP.Models.VLoad
+
+@{
+	ViewData["Title"] = "Index";
+}
+
+<style>
+	.popup {
+		display: inline-block;
+	}
+
+		.popup .popuptext {
+			visibility: hidden;
+			width: 160px;
+			background-color: #b1b1b1;
+			color: #fff;
+			text-align: center;
+			border-radius: 6px;
+			padding: 20px;
+			position: relative;
+			top: 50px;
+			right: 150px;
+		}
+
+		.popup .show {
+			visibility: visible;
+			-webkit-animation: fadeIn 1s;
+			animation: fadeIn 1s;
+		}
+</style>
+
+@*1*@
+<table style="width:100%;">
+	<tr>
+		<td style="width:4.5%; text-align:center">
+			<h5 style="background-color:forestgreen; color:white;">PAID</h5>
+		</td>
+		<td style="width:50%;">
+			<h1>&nbsp; Bill</h1>
+		</td>
+		<td style="text-align:right;">
+			<div id="divLogo"><img src="@Url.Content(Model.mTo[0].Url)" alt="Image" /></div>
+		</td>
+	</tr>
+</table>
+<table style="width:100%;">
+	<tr>
+		<td style="width:30%;">
+			Invoice No.<br />
+			@Html.TextBoxFor(m => m.invNo, new { disabled = "true" })
+		</td>
+		<td style="width:30%;">
+			Language<br />
+			@Html.DropDownListFor(m => m.language, new SelectList(Model.language, "Value", "Text"))
+		</td>
+		<td style="width:30%;">
+			Currency<br />
+			@Html.DropDownListFor(m => m.mCurrency, new SelectList(Model.mCurrency, "CurrencyID", "CurrencyDesc"), new { onchange = "ddlCurrSelectedIndexChanged()" })
+		</td>
+	</tr>
+</table>
+<hr />
+@*2*@
+<table style="width:100%;" border="0">
+	<tr>
+		<td rowspan="2" style="width:65%; vertical-align:top;">
+			From<br />
+			@Html.TextAreaFor(m => m.tInvoiceH.Fr, new { style = "width:75%;" })
+		</td>
+		<td>
+			Date<br />
+			<input type="text" id="datepicker" readonly="readonly">
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Invoice Due<br />
+			<input type="text" id="datepicker2" readonly="readonly">
+		</td>
+	</tr>
+	<tr>
+		<td rowspan="2" style="width:35%; vertical-align: top;">
+			To<br />
+			@Html.DropDownListFor(m => m.mTo, new SelectList(Model.mTo, "ToID", "To"), new { onchange = "ddlToSelectedIndexChanged()" })<br />
+			<div id="divAddress">@Html.Label(Model.mTo[0].Address))</div>
+		</td>
+		<td>
+			Purchase Order Number<br />
+			<div style="text-align:left;">
+				@*<a href="#" onclick="pop()">Choose PO</a>*@
+				<div id="divPo"><input type="text" id="txtPo" onclick="pop()" readonly /></div>
+				<div class="popup">
+					<span class="popuptext" id="myPopup">
+						@Html.DropDownListFor(m => m.mPo, new SelectList(Model.mPo, "PONo", "Name"), new { onchange = "ddlPoSelectedIndexChanged()" })
+					</span>
+				</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			&nbsp;
+		</td>
+	</tr>
+</table>
+<hr />
+@*3*@
+<table style="width:100%;" border="0">
+	<tr>
+		<td style="width:55%;">
+			Name<br />
+			@Html.TextAreaFor(m => m.detailInfo.Name)
+		</td>
+		<td style="width:20%; vertical-align:top; text-align:right;">
+			Quantity<br />
+			@Html.TextBoxFor(m => m.detailInfo.Qty)
+		</td>
+		<td style="width:20%; vertical-align:top; text-align:right;">
+			Rate<br />
+			@Html.TextBoxFor(m => m.detailInfo.Rate)
+		</td>
+		<td style="width:5%; vertical-align:top; text-align:right;">
+			<br />
+			<div id="lblCurr1">@Html.Label(Model.mCurrency[0].CurrencyID)&nbsp;</div>
+		</td>
+		<td style="width:20%; vertical-align:top; text-align:right;">
+			Amount<br />
+			@Html.TextBoxFor(m => m.detailInfo.Amount)
+			@*@Html.TextBoxFor(m => m.detailInfo.Amount, new { @readonly = "readonly" })*@
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input type="button" id="btnNew" value="New Line" onclick="newLine()"/>
+		</td>
+	</tr>
+</table>
+<p />
+<div id="divGrid">
+	@*<table class="table">
+		<tr>
+			<th>ToID</th>
+			<th>To</th>
+			<th>Address</th>			
+			<th></th>
+		</tr>
+		@foreach (var customer in Model.mTo)
+		{
+			<tr>
+				<td>@customer.ToID</td>
+				<td>@customer.To</td>
+				<td>@customer.Address</td>
+				<td>@Html.ActionLink("Delete", "Delete", new { id = customer.ToID })</td>
+			</tr>
+		}
+	</table>*@
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>
+					Name
+				</th>
+				<th>
+					Qty
+				</th>
+				<th>
+					Rate
+				</th>
+				<th>
+					Amount
+				</th>
+				<th>
+					Action
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model.tInvoiceD)
+			{
+				<tr>
+					<td>
+						@Html.DisplayFor(modelItem => item.Name)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.Qty)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.Rate)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.Amount)
+					</td>
+					<td style="text-align:right">
+						@*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+						@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
+						@Html.ActionLink("Delete", "Delete", new { id = item.InvoiceDetailID })
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<p></p>
+@*4*@
+<table style="width:100%;" border="0">
+	<tr>
+		<td rowspan="3" style="width:50%">
+		</td>
+		<td style="width:25%">
+			Sub Total
+		</td>
+		<td style="width:10%; text-align:right">
+			<div id="divSubTotal">0</div>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:25%">
+			<input type="text" id="txtDiscName" style="width:50%"/><input type="text" id="txtDisc" style="width:20%; text-align:right"/>&nbsp;%
+		</td>
+		<td style="width:10%; text-align:right">
+			<div id="divSubTotal">0</div>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:25%">
+			<b><div id="lblCurr2">Total (@Html.Label(Model.mCurrency[0].CurrencyID))</div></b>
+		</td>
+		<td style="width:10%; text-align:right">
+			<b><div id="divTotal">0</div></b>
+		</td>
+	</tr>
+</table>
+
+@section Scripts {
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#datepicker").datepicker({ minDate: 0, maxDate: "+10Y", dateFormat: "yy-mm-dd" });
+			$("#datepicker2").datepicker({ minDate: 0, maxDate: "+10Y", dateFormat: "yy-mm-dd" });
+
+			if ('@ViewBag.langInfo' != '')
+			{
+				document.getElementById('language').value = '@ViewBag.langInfo';
+				document.getElementById('mCurrency').value = '@ViewBag.currInfo';
+				document.getElementById('mTo').value = '@ViewBag.toInfo';
+				document.getElementById('mPo').value = '@ViewBag.poInfo';
+			}			
+		});
+
+		function ddlCurrSelectedIndexChanged() {
+			var currid = document.getElementById('mCurrency').value;
+			add = '<label for="' + currid + '">' + currid + '</label>&nbsp;';
+			$("#lblCurr1").html(add);
+			add = 'Total (<label for="' + currid + '">' + currid + '</label>)';
+			$("#lblCurr2").html(add);
+		}
+
+		//proses To
+		function ddlToSelectedIndexChanged() {
+			var toid = document.getElementById('mTo').value;
+			var mtos = @Html.Raw(Json.Serialize(Model.mTo));
+			var mto = mtos.filter(function (e) {
+				return e.toID === toid;
+			});
+			var addrById = mto[0].address;
+			var urlById = mto[0].url;
+
+			var add = '<img src="' + urlById + '" alt="Image" />';
+			$("#divLogo").html(add);
+			add = '<label for="' + addrById + '">' + addrById + '</label>';
+			$("#divAddress").html(add);
+		}
+
+		//proses Po
+		function pop() {
+			var popup = document.getElementById('myPopup');
+			popup.classList.toggle('show');
+		}
+
+		function ddlPoSelectedIndexChanged() {
+			var poid = document.getElementById('mPo').value;
+
+			var add = '<input type="text" id="txtPo" value="' + poid + '" onclick="pop()" readonly/>';
+			$("#divPo").html(add);
+
+			var popup = document.getElementById('myPopup');
+			popup.classList.toggle('show');
+		}
+
+		//proses add
+		function newLine() {
+			var invH = @Html.Raw(Json.Serialize(Model.tInvoiceH));
+			invH.InvoiceHID = document.getElementById('invNo').value;
+			invH.Language = document.getElementById('language').value;
+			invH.Currency = document.getElementById('mCurrency').value;
+			invH.Fr = document.getElementById('tInvoiceH_Fr').value;
+			invH.ToID = document.getElementById('mTo').value;
+			invH.Date = document.getElementById('datepicker').value;
+			invH.InvoiceDue = document.getElementById('datepicker2').value;
+			invH.Pono = document.getElementById('txtPo').value;
+			invH.Discount = document.getElementById('txtDiscName').value;
+			invH.Percent = document.getElementById('txtDisc').value;
+
+			var detail = @Html.Raw(Json.Serialize(Model.detailInfo));
+			detail.Name = document.getElementById('detailInfo_Name').value;
+			detail.Qty = document.getElementById('detailInfo_Qty').value;
+			detail.Rate = document.getElementById('detailInfo_Rate').value;
+			detail.Amount = document.getElementById('detailInfo_Amount').value;
+		}
+	</script>
+}	
